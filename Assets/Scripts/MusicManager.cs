@@ -35,7 +35,7 @@ public class MusicManager : MonoBehaviour
             {
                 lastBeatTime = currentTime;
                 OnBeat?.Invoke();
-                Debug.Log("Beat détecté !");
+                //Debug.Log("Beat détecté !");
             }
         }
     }

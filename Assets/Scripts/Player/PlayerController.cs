@@ -20,18 +20,18 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space)) // Le joueur appuie pour sauter
         {
-            Debug.Log("Saut tenté !");
-            m_Movement.Jump();
+            //Debug.Log("Saut tenté !");
+            m_Movement.Jump(); // Force de saut de base
 
             // Vérifie si le joueur saute à un moment précis
             if (m_MusicManager != null && m_MusicManager.IsInPerfectTiming(perfectJumpTime))
             {
-                Debug.Log("Saut en rythme parfait !");
+                //Debug.Log("Saut en rythme parfait !");
                 m_CameraController.ApplySlowMotion(); // Ralentit la caméra pour chaque saut parfait
             }
             else
             {
-                Debug.Log("Saut hors timing.");
+                //Debug.Log("Saut hors timing.");
             }
         }
     }

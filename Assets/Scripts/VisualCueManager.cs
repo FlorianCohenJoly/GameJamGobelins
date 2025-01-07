@@ -43,7 +43,7 @@ public class VisualCueManager : MonoBehaviour
     {
         // Affiche l'indicateur visuel
         visualCue.enabled = true;
-        Debug.Log("Aide visuelle affichée !");
+        //Debug.Log("Aide visuelle affichée !");
 
         // Cache l'indicateur après un délai
         Invoke("HideVisualCue", 0.2f);  // Ajuste la durée d'affichage de l'indicateur

@@ -34,7 +34,7 @@ public class CameraController : MonoBehaviour
                {
                    // Retour à la vitesse normale après le ralentissement
                    DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 1f, slowMotionDuration);
-                   Debug.Log("Ralentissement terminé, retour à la vitesse normale.");
+                   //Debug.Log("Ralentissement terminé, retour à la vitesse normale.");
                });
 
         // Applique le shake de la caméra
