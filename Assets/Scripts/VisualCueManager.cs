@@ -7,45 +7,51 @@ public class VisualCueManager : MonoBehaviour
     private MusicManager m_MusicManager;
 
     [SerializeField]
-    private Image visualCue; // L'indicateur visuel à afficher
-    private bool cueActive = false;
+    private Image visualCue;
 
     private void Start()
-{
-    // Désactive l'image au départ
-    if (visualCue != null)
     {
+        if (m_MusicManager == null)
+        {
+            Debug.LogError("MusicManager manquant dans VisualCueManager !");
+            return;
+        }
+
+        if (visualCue == null)
+        {
+            Debug.LogError("Aucune image assignée pour l'aide visuelle !");
+            return;
+        }
+
+        // Initialisation : désactiver l'aide visuelle au départ
         visualCue.enabled = false;
+
+        // Abonne-toi à l'événement OnBeat du MusicManager
+        m_MusicManager.OnBeat += ShowVisualCue;
     }
 
-    // Abonne-toi à l'événement du MusicManager pour détecter le moment où afficher l'indicateur
-    if (m_MusicManager != null)
+    private void OnDestroy()
     {
-        m_MusicManager.OnTimeReached += ShowVisualCue;
+        // Se désabonner de l'événement lors de la destruction
+        if (m_MusicManager != null)
+        {
+            m_MusicManager.OnBeat -= ShowVisualCue;
+        }
     }
-}
 
-
-    private void ShowVisualCue(float actionTime)
-{
-    // Vérifie si l'indicateur visuel existe et si l'image est bien définie
-    if (visualCue != null)
+    private void ShowVisualCue()
     {
-        visualCue.enabled = true; // Affiche l'indicateur
-        Debug.Log($"Aide visuelle affichée pour l'action à {actionTime}s !");
-        Invoke("HideVisualCue", 1f); // Cache l'indicateur après 1 seconde
-    }
-}
+        // Affiche l'indicateur visuel
+        visualCue.enabled = true;
+        Debug.Log("Aide visuelle affichée !");
 
+        // Cache l'indicateur après un délai
+        Invoke("HideVisualCue", 0.2f);  // Ajuste la durée d'affichage de l'indicateur
+    }
 
     private void HideVisualCue()
     {
-        // Cache l'indicateur
-        if (visualCue != null)
-        {
-            visualCue.enabled = false;
-            cueActive = false;
-            Debug.Log("Aide visuelle cachée !");
-        }
+        // Cache l'indicateur visuel
+        visualCue.enabled = false;
     }
 }

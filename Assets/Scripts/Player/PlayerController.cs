@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,49 +8,30 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private MusicManager m_MusicManager;
 
-    void Start()
-    {
-        // S'abonner à l'événement OnTimeReached du MusicManager
-        if (m_MusicManager != null)
-        {
-            m_MusicManager.OnTimeReached += HandleTimeReached;
-        }
-    }
+    [SerializeField]
+    private CameraController m_CameraController; // Contrôle de la caméra
 
-    void OnDestroy()
-    {
-        // Se désabonner de l'événement pour éviter les erreurs si l'objet est détruit
-        if (m_MusicManager != null)
-        {
-            m_MusicManager.OnTimeReached -= HandleTimeReached;
-        }
-    }
-
-    private void HandleTimeReached(float actionTime)
-    {
-        // C'est ici que tu peux gérer les actions au moment où l'événement est déclenché
-        Debug.Log($"Temps d'action atteint à {actionTime}s !");
-    }
+    private float perfectJumpTime = 60f / 120f; // Le temps entre chaque battement pour un BPM de 120
 
     void Update()
     {
-        float dir = 1; // Le joueur avance toujours vers la droite.
+        float dir = 1; // Le joueur avance toujours vers la droite
         m_Movement.Move(dir);
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (Input.GetKeyDown(KeyCode.Space)) // Le joueur appuie pour sauter
         {
-            Debug.Log("Jump");
+            Debug.Log("Saut tenté !");
             m_Movement.Jump();
 
-            // Vérifie si c'est le bon moment pour effectuer l'action en fonction des temps d'action définis
-            foreach (var actionTime in m_MusicManager.actionTimes)
+            // Vérifie si le joueur saute à un moment précis
+            if (m_MusicManager != null && m_MusicManager.IsInPerfectTiming(perfectJumpTime))
             {
-                if (m_MusicManager.IsActionTiming(actionTime))
-                {
-                    Debug.Log("Action réussie !");
-                    m_Movement.BoostSpeed();
-                    break; // Une seule action par saut
-                }
+                Debug.Log("Saut en rythme parfait !");
+                m_CameraController.ApplySlowMotion(); // Ralentit la caméra pour chaque saut parfait
+            }
+            else
+            {
+                Debug.Log("Saut hors timing.");
             }
         }
     }
