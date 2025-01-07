@@ -48,18 +48,10 @@ public class PlayerMovement : MonoBehaviour
             _canDoubleJump = false; // Désactive le double saut après son utilisation
         }
     }
-
-    public void Stomp()
-    {
-        if (!_isGrounded)
-        {
-            _rigidBody.AddForce(Vector2.down * m_JumpForce, ForceMode2D.Impulse); // Applique une force vers le bas pour un effet de stomp
-        }
-    }
-
+    
     private void FixedUpdate()
     {
-        // Applique le mouvement horizontal
+        // Applique le mouvement horizontal tout le temps, même pendant le saut
         if (Mathf.Abs(_dir) > 0.01f)
         {
             _rigidBody.velocity = new Vector2(_dir * m_MoveSpeed, _rigidBody.velocity.y);

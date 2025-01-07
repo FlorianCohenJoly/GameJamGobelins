@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
             m_Movement.Jump(); // Force de saut de base
 
             // Vérifie si le joueur saute à un moment précis
-            if (m_MusicManager != null && m_MusicManager.IsInPerfectTiming(perfectJumpTime))
+            if (m_MusicManager != null && m_MusicManager.IsInPerfectTiming(perfectJumpTime) )
             {
                 //Debug.Log("Saut en rythme parfait !");
                 m_CameraController.ApplySlowMotion(); // Ralentit la caméra pour chaque saut parfait
