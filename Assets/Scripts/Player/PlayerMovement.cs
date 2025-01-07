@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _isGrounded = false;
     private bool _canDoubleJump = false;
     private bool _isTouchingWall = false;
+    private bool _isPerfectDoubleJump = false;
 
     [SerializeField]
     private LayerMask m_GroundMask; // Masque pour détecter le sol
@@ -28,10 +29,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private Vector2 m_BoxSize = new Vector2(0.5f, 1f); // Taille de la boîte pour le BoxCast
 
+    private JumpCounter m_JumpCounter;
+
     private void Awake()
     {
         _rigidBody = GetComponent<Rigidbody2D>();
         _rigidBody.gravityScale = m_GravityScale;
+        m_JumpCounter = FindObjectOfType<JumpCounter>(); // Référence au gestionnaire de sauts
     }
 
     public void Move(float dir)
@@ -44,13 +48,22 @@ public class PlayerMovement : MonoBehaviour
         if (_isGrounded) // Saut simple
         {
             _isJumping = true;
-            _canDoubleJump = true; // Permet un double saut
+            _canDoubleJump = true; // Permet un double saut après le saut initial
         }
         else if (_canDoubleJump) // Double saut
         {
             _isJumping = true;
-            _canDoubleJump = false; // Désactive le double saut
+            _canDoubleJump = false; // Désactive le double saut après son utilisation
+
+            // Vérification si le double saut est "parfait"
+            _isPerfectDoubleJump = IsPerfectDoubleJump();
         }
+    }
+
+    private bool IsPerfectDoubleJump()
+    {
+        // Détermine si le double saut est "parfait" (basé sur la vitesse verticale)
+        return _rigidBody.velocity.y > 0.5f && _rigidBody.velocity.y < 3f;
     }
 
     private void FixedUpdate()
@@ -89,19 +102,27 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // Vérifie si le joueur est au sol (Raycast vers le bas)
+        // Vérifie si le joueur est au sol
         _isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 0.6f, m_GroundMask);
 
         // Si le joueur est au sol, réinitialiser le double saut
         if (_isGrounded)
         {
             _canDoubleJump = true;
+            _isPerfectDoubleJump = false; // Réinitialisation
         }
 
         // Détection du saut par espace
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
+        }
+
+        // Si le double saut est parfait, on informe le gestionnaire de sauts
+        if (_isPerfectDoubleJump)
+        {
+            m_JumpCounter.IncrementGoodJump(); // Incrémente le compteur de sauts parfaits
+            _isPerfectDoubleJump = false; // Réinitialisation
         }
     }
 
