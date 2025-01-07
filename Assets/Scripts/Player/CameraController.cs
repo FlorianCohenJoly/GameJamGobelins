@@ -4,59 +4,59 @@ using DG.Tweening;
 public class CameraController : MonoBehaviour
 {
     [SerializeField]
-    private Transform m_Player;
+    private float m_Speed = 5f; // Vitesse de la caméra
     [SerializeField]
-    private Vector3 m_Offset;
+    private float m_SlowMotionFactor = 0.5f; // Facteur de ralentissement quand un double saut est effectué
     [SerializeField]
-    private float m_Smoothing;
+    private float m_SlowMotionDuration = 0.5f; // Durée du ralentissement
 
     [SerializeField]
-    private float slowMotionDuration = 0.5f; // Durée du ralentissement
-    [SerializeField]
-    private float slowMotionFactor = 0.8f; // Facteur de ralentissement (moins que 1 = ralentissement)
+    private float m_StopAtPositionX = 100f; // Position finale sur l'axe X (si tu veux que la caméra s'arrête quelque part)
 
-    [SerializeField]
-    private float shakeDuration = 0.2f; // Durée du shake de la caméra
-    [SerializeField]
-    private float shakeStrength = 1f; // Force du shake
-    [SerializeField]
-    private int shakeVibrato = 10; // Nombre de secousses
+    private float m_CurrentSpeed; // Vitesse actuelle de la caméra (sera modifiée quand un double saut est effectué)
 
-    private float normalSpeed = 1f; // Vitesse normale de la caméra
+    private bool m_IsInSlowMotion = false;
 
-    public void ApplySlowMotion()
+    void Start()
     {
-        Debug.Log("Effet de ralentissement de la caméra activé !");
+        m_CurrentSpeed = m_Speed; // Initialise la vitesse de la caméra
         
-        // Ralentit la caméra
-        DOTween.To(() => normalSpeed, x => Time.timeScale = x, slowMotionFactor, slowMotionDuration)
-               .OnComplete(() =>
-               {
-                   // Retour à la vitesse normale après le ralentissement
-                   DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 1f, slowMotionDuration);
-                   //Debug.Log("Ralentissement terminé, retour à la vitesse normale.");
-               });
-
-        // Applique le shake de la caméra
-        ApplyCameraShake();
-    }
-
-    private void ApplyCameraShake()
-    {
-        // Effectue un shake de la caméra pour accentuer le ralentissement
-        // Nous n'affectons que la caméra, sans toucher à la position du joueur
-        transform.DOKill(); // Annule les shakes précédents avant de lancer un nouveau shake
-        transform.DOShakePosition(shakeDuration, shakeStrength, shakeVibrato, 90f, false, true)
-                 .OnStart(() => Debug.Log("Secousse de la caméra activée !"));
     }
 
     void Update()
     {
-        Vector3 target = m_Player.position + m_Offset;
-        float distance = Mathf.Clamp(Vector2.Distance(target, transform.position), 0, 2);
-        target = Vector3.Lerp(transform.position, target, m_Smoothing * Time.deltaTime * distance);
-        target.y = Mathf.Max(2, target.y);
+        // Condition fictive pour détecter un double saut réussi (à adapter à ta logique de jeu)
+        if (PlayerHasPerfectDoubleJump())
+        {
+            ApplySlowMotion();
+        }
 
-        transform.position = target;
+        // Avance la caméra sur l'axe X indépendamment du joueur
+        if (transform.position.x < m_StopAtPositionX) // Optionnel : arrêter la caméra après une certaine position
+        {
+            transform.Translate(Vector3.right * m_CurrentSpeed * Time.deltaTime);
+        }
+    }
+
+    public bool PlayerHasPerfectDoubleJump()
+    {
+        // Logique pour détecter un double saut parfait (à remplacer par ta logique)
+        return false; // Retourne `true` si un double saut parfait est effectué
+    }
+
+    public void ApplySlowMotion()
+    {
+        if (!m_IsInSlowMotion)
+        {
+            m_IsInSlowMotion = true;
+            m_CurrentSpeed = m_Speed * m_SlowMotionFactor; // Réduit la vitesse de la caméra
+
+            // Retourne la vitesse à la normale après la durée du ralentissement
+            DOVirtual.DelayedCall(m_SlowMotionDuration, () =>
+            {
+                m_CurrentSpeed = m_Speed; // Restaure la vitesse normale
+                m_IsInSlowMotion = false;
+            });
+        }
     }
 }
