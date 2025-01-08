@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Ground
   - Poireau
+  - WinCollider
   layers:
   - Default
   - TransparentFX

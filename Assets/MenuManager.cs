@@ -12,7 +12,7 @@ public class MenuManager : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("Start Game");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("ComicScene");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("SampleScene");
     }
 
     public void ExitGame()
