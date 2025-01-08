@@ -31,11 +31,16 @@ public class PlayerMovement : MonoBehaviour
 
     private JumpCounter m_JumpCounter;
 
+    private Animator anim;
+
     private void Awake()
     {
         _rigidBody = GetComponent<Rigidbody2D>();
         _rigidBody.gravityScale = m_GravityScale;
         m_JumpCounter = FindObjectOfType<JumpCounter>(); // Référence au gestionnaire de sauts
+
+        // Initialiser l'Animator
+        anim = GetComponent<Animator>();
     }
 
     public void Move(float dir)
@@ -45,6 +50,11 @@ public class PlayerMovement : MonoBehaviour
 
     public void Jump()
     {
+        if (anim != null)
+        {
+            anim.SetBool("isJumping", true); // Activer l'animation de saut
+        }
+
         if (_isGrounded) // Saut simple
         {
             _isJumping = true;
@@ -68,17 +78,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Vérifie si le joueur touche un mur
         _isTouchingWall = IsTouchingWall();
 
-        // Si le joueur touche un mur, bloque le mouvement horizontal
         if (_isTouchingWall)
         {
             _rigidBody.velocity = new Vector2(0, _rigidBody.velocity.y);
         }
         else
         {
-            // Applique le mouvement horizontal
             if (Mathf.Abs(_dir) > 0.01f)
             {
                 _rigidBody.velocity = new Vector2(_dir * m_MoveSpeed, _rigidBody.velocity.y);
@@ -89,58 +96,53 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        // Applique la force de saut
         if (_isJumping)
         {
             _isJumping = false;
             _rigidBody.AddForce(Vector2.up * m_JumpForce, ForceMode2D.Impulse);
         }
 
-        // Gravité ajustée pendant l'ascension ou la descente
         _rigidBody.gravityScale = _rigidBody.velocity.y > 0 ? m_RiseGravityScale : m_GravityScale;
     }
 
     private void Update()
     {
-        // Vérifie si le joueur est au sol
-        _isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 0.6f, m_GroundMask);
+        _isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 1f, m_GroundMask);
 
-        // Si le joueur est au sol, réinitialiser le double saut
         if (_isGrounded)
         {
             _canDoubleJump = true;
-            _isPerfectDoubleJump = false; // Réinitialisation
+            _isPerfectDoubleJump = false;
+
+            // Réinitialiser l'animation de saut
+            if (anim != null)
+            {
+                anim.SetBool("isJumping", false);
+            }
         }
 
-        // Détection du saut par espace
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
         }
 
-        // Si le double saut est parfait, on informe le gestionnaire de sauts
         if (_isPerfectDoubleJump)
         {
-            m_JumpCounter.IncrementGoodJump(); // Incrémente le compteur de sauts parfaits
-            _isPerfectDoubleJump = false; // Réinitialisation
+            m_JumpCounter.IncrementGoodJump();
+            _isPerfectDoubleJump = false;
         }
     }
 
     private bool IsTouchingWall()
     {
-        // Centre de la BoxCast
         Vector2 origin = transform.position;
-        // Direction de la BoxCast (droite ou gauche)
         Vector2 direction = Vector2.right * Mathf.Sign(_dir);
-
-        // Effectue le BoxCast
         RaycastHit2D hit = Physics2D.BoxCast(origin, m_BoxSize, 0f, direction, m_WallCheckDistance, m_WallMask);
 
-        // Dessine la BoxCast dans la scène pour visualisation
-        Debug.DrawRay(origin + new Vector2(-m_BoxSize.x / 2, -m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green); // Bas gauche
-        Debug.DrawRay(origin + new Vector2(-m_BoxSize.x / 2, m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green); // Haut gauche
-        Debug.DrawRay(origin + new Vector2(m_BoxSize.x / 2, -m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green); // Bas droite
-        Debug.DrawRay(origin + new Vector2(m_BoxSize.x / 2, m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green); // Haut droite
+        Debug.DrawRay(origin + new Vector2(-m_BoxSize.x / 2, -m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green);
+        Debug.DrawRay(origin + new Vector2(-m_BoxSize.x / 2, m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green);
+        Debug.DrawRay(origin + new Vector2(m_BoxSize.x / 2, -m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green);
+        Debug.DrawRay(origin + new Vector2(m_BoxSize.x / 2, m_BoxSize.y / 2), direction * m_WallCheckDistance, Color.green);
 
         return hit.collider != null;
     }
