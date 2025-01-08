@@ -30,6 +30,6 @@ public class TimerManager : MonoBehaviour
     private void UpdateTimerDisplay()
     {
         // Affiche le temps écoulé avec 2 chiffres après la virgule
-        timerText.text = "Temps : " + timeElapsed.ToString("F2");
+        timerText.text = "Time : " + timeElapsed.ToString("F2");
     }
 }

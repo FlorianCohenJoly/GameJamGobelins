@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -14,13 +12,14 @@ public class CollectPoireau : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI m_PoireauText;
 
+   
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         // Vérifie si l'objet collecté est un poireau
         if (other.CompareTag("Poireau"))
         {
             IncrementPoireau();
-            Debug.Log("Poireau collecté !");
             Destroy(other.gameObject); // Détruit l'objet poireau collecté
         }
     }
@@ -29,7 +28,6 @@ public class CollectPoireau : MonoBehaviour
     public void IncrementPoireau()
     {
         m_Poireau++;
-        Debug.Log("Poireau collecté ! Total : " + m_Poireau);
         UpdatePoireauUI();
     }
 
@@ -38,7 +36,7 @@ public class CollectPoireau : MonoBehaviour
     {
         if (m_PoireauText != null)
         {
-            m_PoireauText.text = "Poireaux: " + m_Poireau;
+            m_PoireauText.text = "" + m_Poireau;
         }
     }
 }

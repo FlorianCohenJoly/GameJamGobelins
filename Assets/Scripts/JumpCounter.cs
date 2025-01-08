@@ -17,7 +17,6 @@ public class JumpCounter : MonoBehaviour
     public void IncrementGoodJump()
     {
         m_GoodJumps++;
-        Debug.Log("Bon saut ! Total : " + m_GoodJumps);
         UpdateJumpUI();
     }
 
