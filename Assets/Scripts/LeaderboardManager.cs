@@ -1,35 +1,48 @@
 using UnityEngine;
-using TMPro; // Assurez-vous d'inclure TextMeshPro
+using TMPro;
 
 public class LeaderboardManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI scoreText; // Référence au texte où afficher le score dans la scène du menu
-    [SerializeField] private Transform scrollViewContent; // Le conteneur pour la scroll view
-    [SerializeField] private GameObject scoreItemPrefab; // Le prefab pour chaque item de score dans la scroll view
+    [SerializeField] private Transform scrollViewContent; // Conteneur pour les éléments de score
+    [SerializeField] private GameObject scoreItemPrefab; // Prefab d'élément de score
 
     private void Start()
     {
-        // Récupérer le score sauvegardé
-        float savedScore = PlayerPrefs.GetFloat("PlayerScore", 0f); // 0f comme valeur par défaut si aucune donnée n'est trouvée
-
-        // Afficher le score récupéré dans le texte
-        if (scoreText != null)
-        {
-            scoreText.text = "Dernier Score : " + savedScore.ToString("F2");
-        }
-
-        // Optionnel : Afficher ce score dans une ScrollView (liste)
-        DisplayScoreInScrollView(savedScore);
+        LoadScores();
     }
 
-    private void DisplayScoreInScrollView(float score)
+    private void LoadScores()
     {
-        // Créez un nouvel item pour la ScrollView (ici une simple ligne avec le score)
-        GameObject newScoreItem = Instantiate(scoreItemPrefab, scrollViewContent);
-        TextMeshProUGUI newScoreText = newScoreItem.GetComponent<TextMeshProUGUI>();
-        if (newScoreText != null)
+        string scoreKey = "Leaderboard";
+        string currentData = PlayerPrefs.GetString(scoreKey, "");
+
+        if (string.IsNullOrEmpty(currentData))
         {
-            newScoreText.text = "Score: " + score.ToString("F2");
+            Debug.Log("Aucun timer enregistré !");
+            return;
+        }
+
+        string[] entries = currentData.Split('|');
+        foreach (string entry in entries)
+        {
+            string[] data = entry.Split(':');
+            if (data.Length == 2)
+            {
+                string playerName = data[0];
+                string score = data[1];
+
+                CreateScoreItem(playerName, score);
+            }
+        }
+    }
+
+    private void CreateScoreItem(string playerName, string score)
+    {
+        GameObject newScoreItem = Instantiate(scoreItemPrefab, scrollViewContent);
+        TextMeshProUGUI scoreText = newScoreItem.GetComponent<TextMeshProUGUI>();
+        if (scoreText != null)
+        {
+            scoreText.text = $"{playerName} : {score}";
         }
     }
 }

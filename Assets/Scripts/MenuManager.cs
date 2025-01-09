@@ -11,7 +11,7 @@ public class MenuManager : MonoBehaviour
 
     public void StartGame()
     {
-        Debug.Log("Start Game");
+        Time.timeScale = 1f;
         UnityEngine.SceneManagement.SceneManager.LoadScene("SampleScene");
     }
 
